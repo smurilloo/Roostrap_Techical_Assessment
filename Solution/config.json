@@ -1,0 +1,6 @@
+{
+    "logs_dir": "Logs_run_1",
+    "models_dir": "Models_run_1",
+    "run_model_log": "Train_log_run_1.txt",
+    "model_name1": "Trained_model_run_1.pkl"
+}
