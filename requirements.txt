@@ -1,0 +1,25 @@
+# Core web app
+fastapi
+uvicorn
+
+# PDF handling
+PyPDF2
+
+# Vector store & embeddings
+langchain
+faiss-cpu
+sentence-transformers
+
+# Web scraping
+selenium
+webdriver-manager
+
+# Google Gemini (Generative AI)
+google-generativeai
+
+# Static files (optional for production)
+python-multipart
+
+# Runtime environment
+requests
+langchain-community

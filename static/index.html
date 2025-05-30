@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Neuro Crew</title>
+</head>
+<body>
+  <h1>NeuroCrew: Dopamine Assistant</h1>
+  <input id="question" placeholder="Ask something about dopamine...">
+  <button onclick="ask()">Send</button>
+  <div id="response"></div>
+
+<script>
+function ask() {
+  fetch('/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: document.getElementById('question').value })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('response').innerText = data.answer;
+  });
+}
+</script>
+</body>
+</html>
