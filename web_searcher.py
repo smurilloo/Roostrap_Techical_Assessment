@@ -1,3 +1,8 @@
+# Este código busca artículos científicos en Google Scholar usando web Scrapping con Selenium,
+# extrae títulos, resúmenes y enlaces, y luego genera un resumen claro y organizado
+# con ayuda de una inteligencia artificial para facilitar la comprensión del contenido.
+
+
 import google.generativeai as genai
 from typing import List, Dict
 from selenium import webdriver

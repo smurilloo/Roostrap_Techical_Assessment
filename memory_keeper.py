@@ -1,3 +1,5 @@
+# Guarda el historial de preguntas y respuestas para mantener contexto en conversaciones y realizar seguimiento
+
 class MemoryKeeper:
     def __init__(self):
         self.history = []

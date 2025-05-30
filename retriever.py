@@ -1,3 +1,7 @@
+# Este código lee todos los archivos PDF en la carpeta del proyecto, extrae el texto de cada página,
+# identifica los títulos y organiza la información para que pueda ser usada en respuestas o análisis.
+# También resume las páginas leídas en rangos para mostrar de forma clara qué páginas se usaron.
+
 import os
 from PyPDF2 import PdfReader
 

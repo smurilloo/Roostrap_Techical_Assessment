@@ -1,8 +1,11 @@
+# Este código toma una pregunta y busca información en documentos PDF y artículos en internet,
+# luego usa inteligencia artificial para combinar y resumir esa información en una respuesta clara y organizada.
+
 
 import google.generativeai as genai
 import textwrap
 
-genai.configure(api_key="AIzaSyBnzr9P1NSCcF36lXHtf1tA5I9gfIiCcmg")  # Reemplaza con tu API key real
+genai.configure(api_key="AIzaSyBnzr9P1NSCcF36lXHtf1tA5I9gfIiCcmg") 
 
 def synthesize_answer(query, pdfs, pdf_metadata, memory, web_papers):
     pdf_section = ""
@@ -10,7 +13,7 @@ def synthesize_answer(query, pdfs, pdf_metadata, memory, web_papers):
     documents = ""
 
     if pdfs and pdf_metadata:
-        # Construir listado para fuentes
+        # Construir listado para fuentes - PDFs
         pdf_list_text = "\n".join(
             f"- {item['filename']} - {item['title']} (páginas: {item['pages']})"
             for item in pdf_metadata
@@ -23,14 +26,14 @@ def synthesize_answer(query, pdfs, pdf_metadata, memory, web_papers):
             "Usa las páginas específicas donde aparece la información relevante."
         )
 
-        # Concatenar texto por páginas con marca de página para ayudar al modelo
+        # Concatenar texto por páginas con marca de página
         parts = []
         for pdf in pdfs:
             for page in pdf['pages_texts']:
                 parts.append(f"[{pdf['filename']} - Página {page['page']}]\n{page['text']}")
         documents = "\n\n".join(parts)
 
-    # Para papers web, estimar un rango de páginas arbitrario, por ejemplo 1-10
+    # Para papers web, estimar un rango de páginas
     web_section = ""
     instruccion_web = ""
     if web_papers:

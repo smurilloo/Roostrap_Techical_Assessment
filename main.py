@@ -1,3 +1,8 @@
+
+# Esta aplicación web recibe preguntas, busca respuestas en documentos PDF y artículos en internet,
+# y devuelve una respuesta clara usando la información encontrada, recordando conversaciones previas.
+
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
