@@ -1,47 +1,54 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-from retriever import load_pdfs
-from web_searcher import get_top_news_selenium, summarize_and_score_sentiment
-from synthesizer import synthesize_answer
+from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 from memory_keeper import MemoryKeeper
+from retriever import load_pdfs
+from synthesizer import synthesize_answer
+from web_searcher import get_web_papers_selenium
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
-memory = MemoryKeeper()
-texts, metadatas = load_pdfs()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+memory_keeper = MemoryKeeper()
 
 @app.get("/", response_class=HTMLResponse)
-def root():
-    with open("static/index.html") as f:
-        return f.read()
+async def root():
+    html_path = Path(__file__).parent / "static" / "index.html"
+    with open(html_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
 
 @app.post("/ask")
 async def ask(request: Request):
     data = await request.json()
-    query = data['question']
-    
-    web_results = get_top_news_selenium("https://www.nih.gov/news-events/news-releases")
-    summary = summarize_and_score_sentiment("\n".join([n['title'] for n in web_results]))
+    question = data.get("question", "").strip()
 
-    docs_subset = texts[:10]
-    metadata_subset = metadatas[:10]
-    documents = "\n".join(docs_subset)
-    context = memory.get_context()
+    if not question:
+        return JSONResponse(content={"answer": "Por favor ingresa una consulta válida."}, status_code=400)
 
-    # Construir lista detallada de archivos consultados
-    pdf_files_consulted = []
-    for md in metadata_subset:
-        filename = md.get("filename", "archivo_desconocido.pdf")
-        title = md.get("title", "Título no disponible")
-        pages = md.get("pages", "páginas no especificadas")
-        pdf_files_consulted.append({
-            "filename": filename,
-            "title": title,
-            "pages": pages
-        })
+    try:
+        pdf_texts, pdf_metadata = load_pdfs()
 
-    answer = synthesize_answer(query, documents, summary, context, pdf_files=pdf_files_consulted)
-    memory.remember(query, answer)
-    return JSONResponse({"answer": answer})
+        web_papers = get_web_papers_selenium(question)
+
+        memory = memory_keeper.get_context()
+
+        answer = synthesize_answer(question, pdf_texts, pdf_metadata, memory, web_papers)
+
+        memory_keeper.remember(question, answer)
+
+        return JSONResponse(content={"answer": answer})
+
+    except Exception as e:
+        return JSONResponse(content={"answer": f"Error procesando la consulta: {str(e)}"}, status_code=500)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

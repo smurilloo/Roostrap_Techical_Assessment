@@ -1,13 +1,12 @@
 import os
-from collections import defaultdict
 from PyPDF2 import PdfReader
 
-PDF_DIR = "C:/Users/livei/OneDrive/Escritorio/Rootstrap_Techical/Roostrap_Techical_Assessment/papers"
+PDF_DIR = r"C:\Users\livei\OneDrive\Escritorio\Rootstrap_Techical\Roostrap_Techical_Assessment\papers"
 
 def load_pdfs():
     texts = []
     metadatas = []
-    
+
     for file in os.listdir(PDF_DIR):
         if file.endswith(".pdf"):
             path = os.path.join(PDF_DIR, file)
@@ -22,7 +21,7 @@ def load_pdfs():
                     pages.append(i + 1)
 
             if full_text:
-                title = full_text[0].split("\n")[0].strip() if full_text[0] else "Título no identificado"
+                title = full_text[0].split("\n")[0].strip()
                 texts.append("\n".join(full_text))
                 metadatas.append({
                     "filename": file,
@@ -43,15 +42,8 @@ def compress_page_ranges(pages):
         if p == prev + 1:
             prev = p
         else:
-            if start == prev:
-                ranges.append(str(start))
-            else:
-                ranges.append(f"{start}-{prev}")
+            ranges.append(f"{start}-{prev}" if start != prev else f"{start}")
             start = prev = p
 
-    if start == prev:
-        ranges.append(str(start))
-    else:
-        ranges.append(f"{start}-{prev}")
-
+    ranges.append(f"{start}-{prev}" if start != prev else f"{start}")
     return ",".join(ranges)

@@ -1,12 +1,16 @@
+
 import google.generativeai as genai
+import textwrap
 
-genai.configure(api_key="AIzaSyD4DG2T5KlFUK9ohBzsO4Jf99uye_7XXJE")
+genai.configure(api_key="AIzaSyD4DG2T5KlFUK9ohBzsO4Jf99uye_7XXJE")  # Reemplaza con tu API key real
 
-def synthesize_answer(query, documents, web_info, memory, pdf_files=None):
-    if pdf_files:
+def synthesize_answer(query, pdf_texts, pdf_metadata, memory, web_papers):
+    pdf_section = ""
+    instruccion_archivos = ""
+    if pdf_texts and pdf_metadata:
         pdf_list_text = "\n".join(
             f"- {item['filename']} - {item['title']} (páginas: {item['pages']})"
-            for item in pdf_files
+            for item in pdf_metadata
         )
         pdf_section = f"Fuentes PDF consultadas:\n{pdf_list_text}\n"
         instruccion_archivos = (
@@ -14,9 +18,21 @@ def synthesize_answer(query, documents, web_info, memory, pdf_files=None):
             "solo al contenido textual proporcionado. Menciona explícitamente las fuentes citadas "
             "usando el formato 'nombre_archivo.pdf - Título del paper (páginas)'."
         )
-    else:
-        pdf_section = ""
-        instruccion_archivos = ""
+
+    web_section = ""
+    instruccion_web = ""
+    if web_papers:
+        web_list_text = "\n".join(
+            f"Título: {wp['title']}\nURL: {wp['url']}\nResumen: {wp['snippet']}"
+            for wp in sorted(web_papers, key=lambda x: x.get("score", 0), reverse=True)
+        )
+        web_section = f"Artículos web relevantes desde Google Scholar:\n{web_list_text}\n"
+        instruccion_web = (
+            "A partir de los artículos web anteriores, redacta dos párrafos con el análisis más relevante, "
+            "usando un lenguaje claro y conciso, mencionando explícitamente títulos y URLs."
+        )
+
+    documents = "\n\n".join(pdf_texts) if pdf_texts else ""
 
     prompt = f"""
 Contexto previo:
@@ -27,14 +43,21 @@ Consulta: {query}
 Fuentes documentales (texto extraído de PDFs):
 {documents}
 
-Fuentes web:
-{web_info}
-
 {pdf_section}
 {instruccion_archivos}
 
-Responde con explicaciones claras y referencias explícitas a las fuentes usando el formato indicado.
+{web_section}
+{instruccion_web}
+
+Estructura la respuesta iniciando con los hallazgos de los PDFs y luego el análisis de los papers web.
+Usa formato claro, con títulos y URLs destacados, viñetas para puntos clave y saltos de línea adecuados.
 """
-    model = genai.GenerativeModel(model_name="models/gemini-1.5-flash")
+
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
     response = model.generate_content(prompt)
-    return response.text.strip()
+    raw_summary = response.text.strip()
+
+    wrapped_summary = "\n".join(textwrap.fill(line, width=80) for line in raw_summary.splitlines())
+
+    return wrapped_summary
+
