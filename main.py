@@ -34,13 +34,13 @@ async def ask(request: Request):
         return JSONResponse(content={"answer": "Por favor ingresa una consulta válida."}, status_code=400)
 
     try:
-        pdf_texts, pdf_metadata = load_pdfs()
+        pdf_texts_by_pages, pdf_metadata = load_pdfs()
 
         web_papers = get_web_papers_selenium(question)
 
         memory = memory_keeper.get_context()
 
-        answer = synthesize_answer(question, pdf_texts, pdf_metadata, memory, web_papers)
+        answer = synthesize_answer(question, pdf_texts_by_pages, pdf_metadata, memory, web_papers)
 
         memory_keeper.remember(question, answer)
 
@@ -48,7 +48,3 @@ async def ask(request: Request):
 
     except Exception as e:
         return JSONResponse(content={"answer": f"Error procesando la consulta: {str(e)}"}, status_code=500)
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 import time
 import textwrap
 
-genai.configure(api_key="AIzaSyBnzr9P1NSCcF36lXHtf1tA5I9gfIiCcmg")  # ← reemplaza por tu propia API key
+genai.configure(api_key="AIzaSyD4DG2T5KlFUK9ohBzsO4Jf99uye_7XXJE")  # ← reemplaza por tu propia API key
 
 def get_web_papers_selenium(query: str, max_pages: int = 10) -> List[Dict]:
     base_url = "https://scholar.google.com/scholar"

@@ -4,10 +4,13 @@ import textwrap
 
 genai.configure(api_key="AIzaSyBnzr9P1NSCcF36lXHtf1tA5I9gfIiCcmg")  # Reemplaza con tu API key real
 
-def synthesize_answer(query, pdf_texts, pdf_metadata, memory, web_papers):
+def synthesize_answer(query, pdfs, pdf_metadata, memory, web_papers):
     pdf_section = ""
     instruccion_archivos = ""
-    if pdf_texts and pdf_metadata:
+    documents = ""
+
+    if pdfs and pdf_metadata:
+        # Construir listado para fuentes
         pdf_list_text = "\n".join(
             f"- {item['filename']} - {item['title']} (páginas: {item['pages']})"
             for item in pdf_metadata
@@ -16,23 +19,31 @@ def synthesize_answer(query, pdf_texts, pdf_metadata, memory, web_papers):
         instruccion_archivos = (
             "IMPORTANTE: El modelo no tiene acceso a los archivos originales, "
             "solo al contenido textual proporcionado. Menciona explícitamente las fuentes citadas "
-            "usando el formato 'nombre_archivo.pdf - Título del paper (páginas)'."
+            "usando el formato 'nombre_archivo.pdf - Título del paper (páginas)'. "
+            "Usa las páginas específicas donde aparece la información relevante."
         )
 
+        # Concatenar texto por páginas con marca de página para ayudar al modelo
+        parts = []
+        for pdf in pdfs:
+            for page in pdf['pages_texts']:
+                parts.append(f"[{pdf['filename']} - Página {page['page']}]\n{page['text']}")
+        documents = "\n\n".join(parts)
+
+    # Para papers web, estimar un rango de páginas arbitrario, por ejemplo 1-10
     web_section = ""
     instruccion_web = ""
     if web_papers:
         web_list_text = "\n".join(
-            f"Título: {wp['title']}\nURL: {wp['url']}\nResumen: {wp['snippet']}"
+            f"Título: {wp['title']}\nURL: {wp['url']}\nResumen: {wp['snippet']}\n(páginas estimadas: 1-10)"
             for wp in sorted(web_papers, key=lambda x: x.get("score", 0), reverse=True)
         )
         web_section = f"Artículos web relevantes desde Google Scholar:\n{web_list_text}\n"
         instruccion_web = (
             "A partir de los artículos web anteriores, redacta dos párrafos con el análisis más relevante, "
-            "usando un lenguaje claro y conciso, mencionando explícitamente títulos y URLs."
+            "usando un lenguaje claro y conciso, mencionando explícitamente títulos y URLs, "
+            "y considerando un rango estimado de páginas de 1 a 10 para cada artículo."
         )
-
-    documents = "\n\n".join(pdf_texts) if pdf_texts else ""
 
     prompt = f"""
 Contexto previo:
@@ -40,7 +51,7 @@ Contexto previo:
 
 Consulta: {query}
 
-Fuentes documentales (texto extraído de PDFs):
+Fuentes documentales (texto extraído de PDFs, segmentado por página):
 {documents}
 
 {pdf_section}
@@ -60,3 +71,4 @@ Usa formato claro, con títulos y URLs destacados, viñetas para puntos clave y 
     wrapped_summary = "\n".join(textwrap.fill(line, width=80) for line in raw_summary.splitlines())
 
     return wrapped_summary
+

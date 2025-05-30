@@ -3,33 +3,40 @@ from PyPDF2 import PdfReader
 
 PDF_DIR = r"C:\Users\livei\OneDrive\Escritorio\Rootstrap_Techical\Roostrap_Techical_Assessment\papers"
 
+
 def load_pdfs():
-    texts = []
+    pdfs = []
     metadatas = []
 
     for file in os.listdir(PDF_DIR):
         if file.endswith(".pdf"):
             path = os.path.join(PDF_DIR, file)
             reader = PdfReader(path)
-            full_text = []
-            pages = []
+            pages_texts = []
+            pages_numbers = []
 
             for i, page in enumerate(reader.pages):
                 text = page.extract_text()
                 if text and text.strip():
-                    full_text.append(text)
-                    pages.append(i + 1)
+                    pages_texts.append({"page": i+1, "text": text.strip()})
+                    pages_numbers.append(i+1)
 
-            if full_text:
-                title = full_text[0].split("\n")[0].strip()
-                texts.append("\n".join(full_text))
+            if pages_texts:
+                title = pages_texts[0]['text'].split("\n")[0].strip()
+                pdfs.append({
+                    "filename": file,
+                    "title": title,
+                    "pages_texts": pages_texts
+                })
                 metadatas.append({
                     "filename": file,
                     "title": title,
-                    "pages": compress_page_ranges(pages)
+                    "pages": compress_page_ranges(pages_numbers)
                 })
 
-    return texts, metadatas
+    return pdfs, metadatas
+
+
 
 def compress_page_ranges(pages):
     if not pages:
