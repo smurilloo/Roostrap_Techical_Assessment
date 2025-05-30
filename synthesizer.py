@@ -2,7 +2,7 @@
 import google.generativeai as genai
 import textwrap
 
-genai.configure(api_key="AIzaSyD4DG2T5KlFUK9ohBzsO4Jf99uye_7XXJE")  # Reemplaza con tu API key real
+genai.configure(api_key="AIzaSyBnzr9P1NSCcF36lXHtf1tA5I9gfIiCcmg")  # Reemplaza con tu API key real
 
 def synthesize_answer(query, pdf_texts, pdf_metadata, memory, web_papers):
     pdf_section = ""
@@ -60,4 +60,3 @@ Usa formato claro, con títulos y URLs destacados, viñetas para puntos clave y 
     wrapped_summary = "\n".join(textwrap.fill(line, width=80) for line in raw_summary.splitlines())
 
     return wrapped_summary
-
