@@ -89,7 +89,8 @@ Ejecuta la API con FastAPI
 bash
 Copy
 Edit
-uvicorn main:app --reload
+python -m uvicorn main:app --reload
+
 Abre en navegador:
 
 cpp

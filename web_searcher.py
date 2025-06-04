@@ -61,6 +61,11 @@ Analiza los siguientes artículos científicos obtenidos de Google Scholar y gen
 
 - Usa dos párrafos separados.
 - Incorpora títulos y URLs destacados en líneas propias.
+usando el formato 'url paper - Título del paper (páginas)',
+Usa las páginas específicas donde aparece la información relevante,
+ten en cuenta que cada 500 caracteres se pasa de una pagina a otra,
+es decir los primeros 500 caracteres son la pagina 1, a los 1000 es la pagina 2
+y asi sucesivamente.
 - Usa viñetas o numeración para temas comunes o puntos importantes.
 - Añade saltos de línea para facilitar la lectura.
 - No dejes líneas con más de 80 caracteres; usa saltos de línea para ajustar el texto.

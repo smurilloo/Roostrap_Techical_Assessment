@@ -5,7 +5,9 @@
 import os
 from PyPDF2 import PdfReader
 
-PDF_DIR = r"C:\Users\livei\OneDrive\Escritorio\Rootstrap_Techical\Roostrap_Techical_Assessment\papers"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PDF_DIR = os.path.join(BASE_DIR, "papers")
 
 
 def load_pdfs():
